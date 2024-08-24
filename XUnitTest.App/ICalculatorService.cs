@@ -11,5 +11,7 @@ namespace XUnitTest.App
         int Add(int a, int b);
 
         int AddTwo(int a, int b);
+
+        int Multip(int a, int b);
     }
 }

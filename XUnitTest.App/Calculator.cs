@@ -24,5 +24,16 @@ namespace XUnitTest.App
         {
             return _calculatorService.AddTwo(a, b);
         }
+
+
+        public int Multip(int a, int b)
+        {
+            if (a == 0)
+            {
+                throw new Exception("a==0 olamaz.");
+            }
+
+            return a * b;
+        }
     }
 }

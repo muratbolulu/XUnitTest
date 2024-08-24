@@ -21,6 +21,7 @@ namespace XUnitTest.Test
             _calculator = new Calculator(_myMock.Object); //constructor da nesne örneği alındığında mock araya girer ve fake yapı başlar.
         }
 
+        //delege'ler metotları, event'lerde delegeleri işaret eder.
 
         //İsimlendirme;
         ////[MethodName_StateUnderTest_ExceptedBehavior]
@@ -30,7 +31,6 @@ namespace XUnitTest.Test
         //IndexReturnADirectToIndexHomeWhenIdIsNull
 
 
-
         //Fact -->> attribute dür. Parametre almaz. Test edilecek metodlara verilir.VS tanır.
         //Theory  -->> parametre almak zorundadır. Parametre geçmek için InlineData.
         //InlineData  -->> parametreler alır. İstenildiği kadar peşpeşe kullanılabilir.
@@ -38,6 +38,7 @@ namespace XUnitTest.Test
         //Act -->>davranış gösterimi, test edeceğimiz metodun çalışacağı yer.
 
         //Assert -->> çıkan sonucun doğru/yanlış olduğunu gösterir.
+
 
         //[Fact]
         public void AddTestEqual()
@@ -182,9 +183,9 @@ namespace XUnitTest.Test
         //Moq
         //dönüş değerini -metottaki işlemleri yapmadan, service e girmeden- beklenen değeri (expectedValue) ile bitiriyor.
 
-        [Theory]
-        [InlineData(0, 6, 0)]
-        [InlineData(5, 0, 0)]
+        //[Theory]
+        //[InlineData(0, 6, 0)]
+        //[InlineData(5, 0, 0)]
         public void AddTwo_ZeroValues_ReturnZeroValue2(int a, int b, int expectedTotal)
         {
 
@@ -194,6 +195,65 @@ namespace XUnitTest.Test
             //var actualTotal = _calculator.AddTwo(a, b); //service gider.
             //Assert.Equal(expectedTotal, actualTotal);
 
+        }
+
+
+        //[Theory]
+        //[InlineData(0, 6, 0)]
+        //[InlineData(5, 0, 0)]
+        public void AddTwo_ZeroValues_ReturnZeroValue3(int a, int b, int expectedTotal)
+        {
+
+            _myMock.Setup(x => x.AddTwo(a, b)).Returns(expectedTotal); //service e gitmez.
+            Assert.Equal(expectedTotal, _calculator.AddTwo(a, b)); //service gitmeden retur expectedTotal kabul edilir.
+
+            //_myMock.Verify(x=>x.AddTwo(a,b), Times.Once); //en az 1 kere çalışması
+            //_myMock.Verify(x=>x.AddTwo(a,b), Times.Never); //hiç çalışmaması
+            _myMock.Verify(x=>x.AddTwo(a,b), Times.AtLeast(2)); //AddTwo metodunun 2 kere çalışması beklenir.
+        }
+
+
+        //birden fazla kez Assert metodu kullanılabilir bir test içerisinde. tüm şartlara bakar
+        //[Theory]
+        //[InlineData(0, 6, 0)]
+        public void AddTwo_ZeroValues_ReturnZeroValue4(int a, int b, int expectedTotal)
+        {
+
+            _myMock.Setup(x => x.AddTwo(a, b)).Returns(expectedTotal); 
+            Assert.Equal(expectedTotal, _calculator.AddTwo(a, b)); //false
+            Assert.NotEmpty(null);  //false
+        }
+
+        //throw ile bir hata fırlatmak için kullanılır.
+        //örn: bir servisten dönen hata simule edilebilir.
+        //[Theory]
+        //[InlineData(0, 5)]
+        public void Multip_ZeroValue_ReturnException(int a, int b)
+        {
+
+            _myMock.Setup(x=>x.Multip(a,b)).Throws(new Exception("a==0 olamaz.."));
+
+            Exception exception = Assert.Throws<Exception>(()=>_calculator.Multip(a,b));
+
+            Assert.Equal("a==0 olamaz.",exception.Message);
+        }
+
+        //callback() ve It.IsAny<type>()
+        [Theory]
+        [InlineData(3, 5, 15)]
+        public void Multip_CallBack_ItIsAny_ReturnZeroValue5(int a, int b, int expectedTotal)
+        {
+            int actualMultip=0;
+            _myMock.Setup(x => x.Multip(It.IsAny<int>(), It.IsAny<int>())).Callback<int,int>((x,y)=> actualMultip = x*y);
+
+            Console.WriteLine(actualMultip);
+            //inline data ile
+            _calculator.Multip(a, b);
+            Assert.Equal(expectedTotal, actualMultip);
+
+            //manuel verilen data ile
+            _calculator.Multip(5, 20);
+            Assert.Equal(100, actualMultip);
         }
 
     }
